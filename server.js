@@ -9,25 +9,58 @@ const connection = mysql.createConnection({
   password: "rootroot",
   database: "scranton_db",
 });
-connection.connect(function(err) {
-    if (err) throw err
-    console.log("Connected as ID" + connection.threadId);
-    console.log("Welcome to the Scranton Employee Database!")
-    initiateRun();
+connection.connect(function (err) {
+  if (err) throw err;
+  console.log("Connected as ID" + connection.threadId);
+  console.log("Welcome to the Scranton Employee Database!");
+  initiateRun();
 });
 function initiateRun() {
-    inquirer.prompt([
-    {
-    type: "list",
-    message: "Please select a table to view.",
-    name: "choice",
-    choices: [
-              "View All Scranton Employees?", 
-              "View All Scranton Employees By Roles?",
-              "View All Scranton Employees By Deparments", 
-              "Update Scranton Employee",
-              "Add Employee to Scranton?",
-              "Add Role to Scranton?",
-              "Add Department to Scranton?"
-            ]
-    }
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "Please select a table to view.",
+        name: "choice",
+        choices: [
+          "View All Scranton Employees?",
+          "View All Scranton Employees By Roles?",
+          "View All Scranton Employees By Deparments",
+          "Update Scranton Employee?",
+          "Add Employee to Scranton?",
+          "Add Role to Scranton?",
+          "Add Department to Scranton?",
+        ],
+      },
+    ])
+    .then(function (val) {
+      switch (val.choice) {
+        case "View All Scranton Employees?":
+          viewScranEmp();
+          break;
+
+        case "View All Scranton Employees By Roles?":
+          viewScranRoles();
+          break;
+        case "View All Scranton Employees By Deparments":
+          viewScranDep();
+          break;
+
+        case "Update Scranton Employee?":
+          updateScranEpm();
+          break;
+
+        case "Add Employee to Scranton?":
+          addScranEmp();
+          break;
+
+        case "Add Role to Scranton?":
+          addScranRole();
+          break;
+
+        case "Add Department to Scranton?":
+          addScranDep();
+          break;
+      }
+    });
+}
