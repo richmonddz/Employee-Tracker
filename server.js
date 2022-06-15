@@ -1,5 +1,5 @@
 const inquirer = require("inquirer");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const consoleTable = require("console.table");
 
 const connection = mysql.createConnection({
@@ -11,7 +11,7 @@ const connection = mysql.createConnection({
 });
 connection.connect(function (err) {
   if (err) throw err;
-  console.log("Connected as ID" + connection.threadId);
+  console.log("Connected" + connection.threadId);
   console.log("Welcome to the Scranton Employee Database!");
   initiateRun();
 });
@@ -83,6 +83,17 @@ function viewScranRoles() {
       console.log("Scranton Employee Roles");
       console.table(res);
       initiateRun();
+    }
+  );
+}
+function viewScranDep() {
+  connection.query(
+    "SELECT employee.first_name, employee.last_name, department.name AS Department FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id;",
+    function (err, res) {
+      if (err) throw err;
+      console.log("Scranton Departments");
+      console.table(res);
+      startPrompt();
     }
   );
 }
