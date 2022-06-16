@@ -144,3 +144,26 @@ function updateScranEmp() {
     }
   );
 }
+var newRole = [];
+function selectRole() {
+  connection.query("SELECT * FROM role", function (err, res) {
+    if (err) throw err;
+    for (var i = 0; i < res.length; i++) {
+      newRole.push(res[i].title);
+    }
+  });
+  return newRole;
+}
+var newManager = [];
+function selectManager() {
+  connection.query(
+    "SELECT first_name, last_name FROM employees WHERE manager_id IS NULL",
+    function (err, res) {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        newManager.push(res[i].first_name);
+      }
+    }
+  );
+  return newManager;
+}
