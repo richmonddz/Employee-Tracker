@@ -115,7 +115,7 @@ function updateScranEmp() {
               }
               return lastName;
             },
-            message: "What is the new Employee's last name? ",
+            message: "Which Employee do you want to update? ",
           },
           {
             name: "role",
@@ -127,11 +127,9 @@ function updateScranEmp() {
         .then(function (val) {
           var roleId = selectRole().indexOf(val.role) + 1;
           connection.query(
-            "UPDATE employee SET WHERE ?",
+            "UPDATE employees SET WHERE ?",
             {
               last_name: val.lastName,
-            },
-            {
               role_id: roleId,
             },
             function (err) {
@@ -157,7 +155,7 @@ function selectRole() {
 var newManager = [];
 function selectManager() {
   connection.query(
-    "SELECT first_name, last_name FROM employees WHERE manager_id IS NULL",
+    "SELECT first_name, last_name FROM employees",
     function (err, res) {
       if (err) throw err;
       for (var i = 0; i < res.length; i++) {
@@ -166,4 +164,124 @@ function selectManager() {
     }
   );
   return newManager;
+}
+var newDepartment = [];
+function selectDepartment() {
+  connection.query("SELECT * FROM department", function (err, res) {
+    if (err) throw err;
+    for (var i = 0; i < res.length; i++) {
+      newDepartment.push(res[i].name);
+    }
+  });
+  return newDepartment;
+}
+function addScranEmp() {
+  inquirer
+    .prompt([
+      {
+        name: "firstname",
+        type: "input",
+        message: "Enter Employee first name ",
+      },
+      {
+        name: "lastname",
+        type: "input",
+        message: "Enter Employee last name ",
+      },
+      {
+        name: "role",
+        type: "list",
+        message: "What is the Employees role? ",
+        choices: selectRole(),
+      },
+      {
+        name: "Department",
+        type: "rawlist",
+        message: "Who is the Employees Manager?",
+        choices: selectManager(),
+      },
+    ])
+    .then(function (val) {
+      var roleId = selectRole().indexOf(val.role) + 1;
+      var managerId = selectManager().indexOf(val.choice) + 1;
+      connection.query(
+        "INSERT INTO employees SET ?",
+        {
+          first_name: val.firstName,
+          last_name: val.lastName,
+          manager_id: managerId,
+          role_id: roleId,
+        },
+        function (err) {
+          if (err) throw err;
+          console.table(val);
+          initiateRun();
+        }
+      );
+    });
+}
+function addScranRole() {
+  connection.query(
+    "SELECT role.title AS Title, role.salary AS Salary FROM role LEFT JOIN department.name AS Department FROM department;",
+    function (err, res) {
+      inquirer
+        .prompt([
+          {
+            name: "Title",
+            type: "input",
+            message: "What is the roles Title?",
+          },
+          {
+            name: "Salary",
+            type: "input",
+            message: "What is the Salary?",
+          },
+          {
+            name: "department",
+            type: "rawlist",
+            message: "Which Department will this role be included to?",
+            choices: selectDepartment(),
+          },
+        ])
+        .then(function (res) {
+          var department = selectDepartment().indexOf(res.choice) + 1;
+          connection.query(
+            "INSERT INTO role SET ?",
+            {
+              title: res.Title,
+              salary: res.Salary,
+              department: department,
+            },
+            function (err) {
+              if (err) throw err;
+              console.table(res);
+              initiateRun();
+            }
+          );
+        });
+    }
+  );
+}
+function addScranDep() {
+  inquirer
+    .prompt([
+      {
+        name: "name",
+        type: "input",
+        message: "What Department would you like to add?",
+      },
+    ])
+    .then(function (res) {
+      var query = connection.query(
+        "INSERT INTO department SET ? ",
+        {
+          name: res.name,
+        },
+        function (err) {
+          if (err) throw err;
+          console.table(res);
+          initiateRun();
+        }
+      );
+    });
 }
