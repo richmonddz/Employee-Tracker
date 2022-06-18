@@ -24,8 +24,8 @@ function initiateRun() {
         name: "choice",
         choices: [
           "View All Scranton Employees?",
-          "View All Scranton Employees By Roles?",
-          "View All Scranton Employees By Deparments",
+          "View All Scranton Roles?",
+          "View All Scranton Deparments",
           "Update Scranton Employee?",
           "Add Employee to Scranton?",
           "Add Role to Scranton?",
@@ -39,10 +39,10 @@ function initiateRun() {
           viewScranEmp();
           break;
 
-        case "View All Scranton Employees By Roles?":
+        case "View All Scranton Roles?":
           viewScranRoles();
           break;
-        case "View All Scranton Employees By Deparments":
+        case "View All Scranton Deparments":
           viewScranDep();
           break;
 
@@ -66,7 +66,7 @@ function initiateRun() {
 }
 function viewScranEmp() {
   connection.query(
-    "SELECT employees.first_name, employees.last_name, role.title, role.salary, department.name, CONCAT(e.first_name, ' ' ,e.last_name) AS manager FROM employees INNER JOIN role on role.id = employees.role_id INNER JOIN department on department.id = role.department_id left join employees e on employees.manager_id = e.id;",
+    "SELECT employees.id, employees.first_name, employees.last_name, role.title, role.salary, department.name, CONCAT(e.first_name, ' ' ,e.last_name) AS manager FROM employees INNER JOIN role on role.id = employees.role_id INNER JOIN department on department.id = role.department_id left join employees e on employees.manager_id = e.id;",
     function (err, res) {
       if (err) throw err;
       console.log("----Scranton Employee List----");
@@ -77,7 +77,7 @@ function viewScranEmp() {
 }
 function viewScranRoles() {
   connection.query(
-    "SELECT employees.first_name, employees.last_name, role.title AS Title FROM employees JOIN role ON employees.role_id = role.id;",
+    "SELECT role.id, role.title, role.salary, role.department_id, department.id, department.name FROM role LEFT JOIN department on role.department_id = department.id",
     function (err, res) {
       if (err) throw err;
       console.log("----Scranton Employee Roles----");
@@ -87,22 +87,19 @@ function viewScranRoles() {
   );
 }
 function viewScranDep() {
-  connection.query(
-    "SELECT employees.first_name, employees.last_name, department.name AS Department FROM employees JOIN role ON employees.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employees.id;",
-    function (err, res) {
-      if (err) throw err;
-      console.log("----Scranton Departments----");
-      console.table(res);
-      initiateRun();
-    }
-  );
+  connection.query("SELECT * FROM department", function (err, res) {
+    if (err) throw err;
+    console.log("----Scranton Departments----");
+    console.table(res);
+    initiateRun();
+  });
 }
 function updateScranEmp() {
   connection.query(
-    "SELECT employees.last_name, role.title FROM employees JOIN role ON employees.role_id = role.id;",
+    "SELECT employees.first_name, employees.last_name, role.title FROM employees JOIN role ON employees.role_id = role.id;",
     function (err, res) {
       if (err) throw err;
-      console.log(res);
+      console.table(res);
       inquirer
         .prompt([
           {
@@ -127,11 +124,12 @@ function updateScranEmp() {
         .then(function (val) {
           var roleId = selectRole().indexOf(val.role) + 1;
           connection.query(
-            "UPDATE employees SET WHERE ?",
+            "UPDATE employees SET ?",
             {
               last_name: val.lastName,
               role_id: roleId,
             },
+
             function (err) {
               if (err) throw err;
               console.table(val);
@@ -195,7 +193,7 @@ function addScranEmp() {
         choices: selectRole(),
       },
       {
-        name: "Department",
+        name: "Manager",
         type: "rawlist",
         message: "Who is the Employees Manager?",
         choices: selectManager(),
@@ -214,6 +212,9 @@ function addScranEmp() {
         },
         function (err) {
           if (err) throw err;
+          console.log("-------------------");
+          console.log("New Employee Added");
+          console.log("-------------------");
           console.table(val);
           initiateRun();
         }
@@ -222,7 +223,7 @@ function addScranEmp() {
 }
 function addScranRole() {
   connection.query(
-    "SELECT role.title AS Title, role.salary AS Salary FROM role LEFT JOIN department.name AS Department FROM department;",
+    "SELECT role.title AS Title, role.salary AS Salary FROM role JOIN department.name AS Department FROM department;",
     function (err, res) {
       inquirer
         .prompt([
@@ -237,23 +238,26 @@ function addScranRole() {
             message: "What is the Salary?",
           },
           {
-            name: "department",
+            name: "Department",
             type: "rawlist",
             message: "Which Department will this role be included to?",
             choices: selectDepartment(),
           },
         ])
         .then(function (res) {
-          var department = selectDepartment().indexOf(res.choice) + 1;
+          var departmentRole = selectDepartment().indexOf(res.choice) + 1;
           connection.query(
             "INSERT INTO role SET ?",
             {
               title: res.Title,
               salary: res.Salary,
-              department: department,
+              department_id: departmentRole,
             },
             function (err) {
               if (err) throw err;
+              console.log("-------------------");
+              console.log("New Role Added");
+              console.log("-------------------");
               console.table(res);
               initiateRun();
             }
@@ -266,7 +270,7 @@ function addScranDep() {
   inquirer
     .prompt([
       {
-        name: "name",
+        name: "Department",
         type: "input",
         message: "What Department would you like to add?",
       },
@@ -279,6 +283,9 @@ function addScranDep() {
         },
         function (err) {
           if (err) throw err;
+          console.log("-------------------");
+          console.log("New Department Added");
+          console.log("-------------------");
           console.table(res);
           initiateRun();
         }
