@@ -30,7 +30,7 @@ npm i inquirer
 ```
 
 ```
-npm i mysql
+npm i mysql2
 ```
 
 ```
