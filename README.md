@@ -51,8 +51,7 @@ into your terminal.
 
 ## Video-Demo
 
-```
+**_Link to Demo Video_**
 https://drive.google.com/file/d/1fzHTAAuaflvuZk-MYME4YMkiE-zeAqxF/view?usp=sharing
-```
 
 https://user-images.githubusercontent.com/100399374/174421159-ff693f09-e538-432a-ab36-9b0eb10b13b0.mp4
