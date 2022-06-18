@@ -39,7 +39,7 @@ npm i console.table
 
 4. Create the database in your MySql Workbench with the `emp_schema.sql` and the `emp_seed.sql`
 
-5. Include your MySql Workbench password in the `server.js` file in line (9) under the createConnection fucntion.
+5. Include your MySql Workbench password in the `server.js` file in line (9) under the createConnection function.
 
 6. To initiate the Employee Tracker, enter
 
